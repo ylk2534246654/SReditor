@@ -6,6 +6,8 @@
 
 <div align=center><a href="https://tieba.baidu.com/f?kw=simplerockets" title="Get tieba"><img src="https://diyyx.wang/app/com.yx.sreditor/ic_sr.jpg" alt="Get tieba" height="50"/></a></div>
 
+<div align=center>简单火箭贴吧</div>
+
 # 🍰SR星系编辑器
 By 雨夏
 *本项目允许未经授权二次开发并发布但需遵循一下方案
