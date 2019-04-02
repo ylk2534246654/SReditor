@@ -4,7 +4,7 @@
 
 ### <div align=center>by 雨夏</div>
 
-<a href="https://tieba.baidu.com/f?kw=simplerockets" title="Get tieba"><img src="https://diyyx.wang/app/com.yx.sreditor/ic_sr.jpg" alt="Get tieba" height="50"/></a></div>
+<div align=center><a href="https://tieba.baidu.com/f?kw=simplerockets" title="Get tieba"><img src="https://diyyx.wang/app/com.yx.sreditor/ic_sr.jpg" alt="Get tieba" height="50"/></a></div>
 
 # 🍰SR星系编辑器
 By 雨夏
