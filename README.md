@@ -7,5 +7,6 @@
 <div align=center>简单火箭贴吧</div>
 
 # 下载表示同意遵循一下事项
+
 1.本项目允许未经授权在此基础上开发并发布
 2.需注明原作者及原项目链接https://github.com/ylk2534246654/sreditor
