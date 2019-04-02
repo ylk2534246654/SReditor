@@ -14,7 +14,7 @@ import java.util.Map;
 import static android.content.ContentValues.TAG;
 
 /**
- * Created by Yx on 2019/3/25.
+ * Created by 雨夏 on 2019/3/25.
  */
 
 public class utils {
@@ -29,16 +29,6 @@ public class utils {
             return null;
         }
         return str2;
-    }
-
-    public static String substring2(String str, String arg0, String arg1) {
-        while (str.indexOf(arg0) != -1) {
-            int int_1 = str.indexOf(arg0);
-            int int_2 = str.indexOf(arg1, int_1);
-            str = str.substring(int_1, int_2) + arg1;
-            str = str.replaceFirst(arg0, "");
-        }
-        return str;
     }
 
     public static String text_null(int str) {
@@ -69,7 +59,6 @@ public class utils {
             parser.setInput(new StringReader(result));
             String name = "";
             String gravity = "";
-            String mapColormapColor = "";
             String radius = "";
             String e = "";
             String w = "";
@@ -79,7 +68,6 @@ public class utils {
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 String nodeName = parser.getName();
-                //Log.d(TAG, "nodeName: " + nodeName);
 
                 switch (eventType) {
                     case XmlPullParser.START_TAG://开始解析

@@ -7,42 +7,40 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.content.ContentValues.TAG;
 import static com.yx.sreditor.Utils.utils.parseXMLWithPull;
 
 public class Design extends View {
 	private boolean Drag;
-	private float eventX0=400,eventY0=600,ceseventX,ceseventY;//中心默认坐标
+	private float eventX0=400,eventY0=600;//中心默认坐标
 	private float[] eventAll;              //行星坐标，[0]为数量
-	private long Multiple=100000000;       //放大倍数
-	private int time,time2;
-	private Paint Paint_Linear,Paint_Texe,Paint_graph;
+	private long Multiple=100000000;       //放大参数
+	private int time,time2;					//轨道变化时间,time是顺时针轨道，time2是逆时针轨道
+	private Paint Paint_Line,Paint_Texe,Paint_graph;//画笔,Paint_Line线,Paint_Texe文字，Paint_graph图形
 	private float[] fixed = new float[8];               // 顺时针记录绘制圆形的四个数据点
 	private float[] mCtrl = new float[16];              // 顺时针记录绘制圆形的八个控制点
 	private static final float C = 0.552284749831f;     // 用来计算绘制圆形贝塞尔曲线控制点的位置的常数
-	private static String Message_code_new;
-	private String Message_code,text;
+	private static String Message_code_new;				// 存储从Main传来的新的代码
+	private String Message_code;							// 存储从Main传来的代码
 	private Map<Integer,Map<String,String>> Message_map =new HashMap<>();
-	Handler handler_time = new Handler();
+	Handler handler_time = new Handler();                //时间线程
 	int xingxing_jiaodian;
-	String[] eventAllstr;
+	String[] int_name;									//储存所有的行星名称
 
 	private void initData() {
 		//画线笔
-		Paint_Linear = new Paint();
-		Paint_Linear.setColor(Color.rgb(230,230,250));
-		Paint_Linear.setStrokeWidth(8);
-		Paint_Linear.setStyle(Paint.Style.STROKE);
-		Paint_Linear.setTextSize(20);
-		Paint_Linear.setAntiAlias(true);
-		Paint_Linear.setAlpha(80);
+		Paint_Line = new Paint();
+		Paint_Line.setColor(Color.rgb(230,230,250));
+		Paint_Line.setStrokeWidth(8);
+		Paint_Line.setStyle(Paint.Style.STROKE);
+		Paint_Line.setTextSize(20);
+		Paint_Line.setAntiAlias(true);
+		Paint_Line.setAlpha(80);
 		//写字笔
 		Paint_Texe = new Paint();
 		Paint_Texe.setColor(Color.rgb(230,230,250));
@@ -51,14 +49,16 @@ public class Design extends View {
 		//图形笔
 		Paint_graph = new Paint();
 		Paint_graph.setAntiAlias(true);
-		//时间
+		//执行时间线程
 		handler_time.postDelayed(runnable,10);
 	}
 	Runnable runnable = new Runnable() {
 		@Override
 		public void run() {
-			time = time+31;
-			time2 = time2+31;
+			//每10毫秒加一
+			//ps:这是调试用的，到时候会写的复杂些
+			time = time+1;
+			time2 = time2+1;
 			invalidate();
 			handler_time.postDelayed(runnable,10);
 		}
@@ -66,7 +66,7 @@ public class Design extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		canvas.translate(eventX0,eventY0);//移动坐标
+		canvas.translate(eventX0,eventY0);//移动中心坐标
 		canvas.drawColor(Color.rgb(0, 0, 0));//背景颜色
 		//canvas.scale(1,1);// 翻转Y轴
 		//获取从代码区传来的代码
@@ -80,7 +80,7 @@ public class Design extends View {
 		}
 		//初始化数量
 		eventAll = new float[Message_map.size()*3];
-		eventAllstr = new String[Message_map.size()*2];
+		int_name = new String[Message_map.size()*2];
 		eventAll[0]=1;
 
 		for(Map.Entry<Integer, Map<String,String>> entry : Message_map.entrySet()) {
@@ -91,7 +91,7 @@ public class Design extends View {
 					Paint_graph.setColor(Color.rgb(Integer.parseInt(map2.get("Color_r")),Integer.parseInt(map2.get("Color_g")),Integer.parseInt(map2.get("Color_b"))));//中心天体颜色
 					canvas.drawCircle(0, 0, Float.parseFloat(map2.get("radius"))/(Multiple), Paint_graph);//太阳颜色
 					canvas.drawText(map2.get("name"), 0,0, Paint_Texe);//中心天体名称
-					eventAllstr[0] = map2.get("name");
+					int_name[0] = map2.get("name");
 					break;
 				case "1"://行星
 					DrawOrbit(
@@ -113,7 +113,6 @@ public class Design extends View {
 
 					break;
 				case "2"://卫星
-
 					DrawOrbit(
 							canvas,Integer.parseInt(map2.get("prograde")),//运行方向
 							0,
@@ -142,8 +141,8 @@ public class Design extends View {
 		for (int i=1;i<eventAll.length-10;i=i+2){
 			try {
 
-				if(eventAllstr[i]!=null){
-					canvas.drawText(eventAllstr[i]+"x:"+eventAll[i]+"y:"+eventAll[i+1], -eventX0,-eventY0+i*20-quchu, Paint_Texe);
+				if(int_name[i]!=null){
+					canvas.drawText(int_name[i]+"x:"+eventAll[i]+"y:"+eventAll[i+1], -eventX0,-eventY0+i*20-quchu, Paint_Texe);
 				}else{
 					quchu = quchu+40;
 				}
@@ -160,9 +159,9 @@ public class Design extends View {
 		canvas.drawText("eventX:"+ceseventX, -eventX0,-eventY0+(Message_map.size()+7)*20+40, Paint_Texe);
 		canvas.drawText("eventY:"+ceseventY, -eventX0,-eventY0+(Message_map.size()+8)*20+60, Paint_Texe);
 		*/
-
 		//canvas.drawText("eventY0:"+eventY0, -eventX0,-eventY0+(Message_map.size()+6)*20+100, Paint_Texe);
-		//星系焦点
+
+		//行星焦点
 		if(xingxing_jiaodian !=0){
 			if(eventAll[xingxing_jiaodian]>eventX2){
 				eventX0=eventX0-(eventAll[xingxing_jiaodian]-eventX2);
@@ -266,8 +265,7 @@ public class Design extends View {
 			eventAll[index] = eventX2;
 			eventAll[index+1] = eventY2;
 			eventAll[0] = index+2;
-			eventAllstr[index] =name;
-			Log.e(TAG, index+"|"+name);
+			int_name[index] =name;
 		}
 	}
 
@@ -411,8 +409,8 @@ public class Design extends View {
 
 		path.cubicTo(mCtrl[12],mCtrl[13],mCtrl[14],mCtrl[15],fixed[0],fixed[1]);
 
-		canvas.drawPath(path, Paint_Linear);
-		canvas.drawPoint(fixed[0], fixed[1], Paint_Linear);
+		canvas.drawPath(path, Paint_Line);
+		canvas.drawPoint(fixed[0], fixed[1], Paint_Line);
 
 	}
 	/**
@@ -431,7 +429,7 @@ public class Design extends View {
 	}
 	/**
 	 * 屏幕事件
-	 * https://blog.csdn.net/csdnzouqi/article/details/79853109
+	 * 放大参考https://blog.csdn.net/csdnzouqi/article/details/79853109
 	 */
 	float eventX1,eventY1,eventX2,eventY2;
 	private double nLenStart3;
@@ -451,8 +449,6 @@ public class Design extends View {
 							for (int i=1;i<eventAll.length;i++){
 								if(eventAll[i] >= seventX-40 && eventAll[i] <= seventX+40 && eventAll[i+1] >= seventY-40 && eventAll[i+1] <= seventY+40){
 									xingxing_jiaodian = i;
-									//ceseventY=eventAll[i];
-									//ceseventX=eventAll[i+1];
 									break;
 								}
 							}
@@ -472,7 +468,6 @@ public class Design extends View {
 			case MotionEvent.ACTION_UP://1抬起
 				Drag = false;
 				nLenStart3=0;
-				text = "无";
 				//抬起结束
 				break;
 			case MotionEvent.ACTION_MOVE://2移动
@@ -506,15 +501,17 @@ public class Design extends View {
 						int value = (int) Math.sqrt((double) xLen * xLen + (double) yLen * yLen);
 						if(nLenStart3!=0){
 							if(nLenStart3>value ) {
+								//限制缩小
 								/*
 								if(Multiple<2000000000){
 									Multiple = (long) (Multiple+Multiple/50);
 								}
 								*/
-								Multiple = (long) (Multiple+Multiple/50);
+								Multiple = Multiple+Multiple/50;
 							}else if(nLenStart3<value) {
+								//限制放大
 								if(Multiple>1000){
-									Multiple = (long) (Multiple-Multiple/50);
+									Multiple = Multiple-Multiple/50;
 								}
 							}
 							nLenStart3 = value;
@@ -544,6 +541,10 @@ public class Design extends View {
 		initData();
 	}
 
+	/**
+	 * 从Main传来的数值
+	 * @param code
+	 */
 	public static void setMessage(String code) {
 		Message_code_new = code;
 	}

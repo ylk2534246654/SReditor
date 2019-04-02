@@ -2,7 +2,6 @@ package com.yx.sreditor;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,11 +10,9 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.yx.sreditor.Utils.StringToSixthUtils;
 import com.yx.sreditor.Utils.file;
@@ -27,29 +24,29 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     LinearLayout Layout_Design;
-    Handler time = new Handler();
     boolean show = false,Text_Color = false;
     EditText EditText_Code;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        //视图界面
         Layout_Design = findViewById(R.id.Layout_Design);
+        //代码编辑界面
         EditText_Code = findViewById(R.id.EditText_Code);
+        //监听代码EditText输入变化
         EditText_Code.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // 输入的内容变化的监听
-                Log.e("输入过程中执行该方法", "文字变化");
-                //判断是否含有字符
-                if(!Text_Color){
+                if(!Text_Color){//判断是否是非是手动输入
                     try {
+                        //初始化代码颜色
                         init_Code();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(MainActivity.this, e+"", Toast.LENGTH_SHORT).show();
                     }
+                    //每次监听完确认非手动输入关闭
                     Text_Color=false;
                 }
             }
@@ -57,49 +54,57 @@ public class MainActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count,
                                           int after) {
                 // 输入前的监听
-                Log.e("输入前确认执行该方法", "开始输入");
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 // 输入后的监听
-                Log.e("输入结束执行该方法", "输入结束");
-
             }
         });
-        if(show){
+        //初始化界面
+        if(show){//如果视图界面显示
+            //显示视图界面
             Layout_Design.setVisibility(View.VISIBLE);
+            //隐藏代码界面
             EditText_Code.setVisibility(View.INVISIBLE);
         }else {
+            //隐藏视图界面
             Layout_Design.setVisibility(View.INVISIBLE);
+            //显示代码界面
             EditText_Code.setVisibility(View.VISIBLE);
         }
         try {
+            //读取本地文件
             EditText_Code.setText(file.read(this,"SmolarSystem.xml"));
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, e+"", Toast.LENGTH_SHORT).show();
         }
+        //FloatingActionButton监听
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!show){
+                if(!show){//如果视图界面不显示
                     if(EditText_Code.getText().toString()!=null && !EditText_Code.getText().toString().equals("")){
                         //向视图传输代码
                         Design.setMessage(EditText_Code.getText().toString());
-                        //Toast.makeText(MainActivity.this, ""+, Toast.LENGTH_SHORT).show();
 
-                        Layout_Design.setVisibility(View.VISIBLE);//显示识图
-                        EditText_Code.setVisibility(View.INVISIBLE);//隐藏代码编辑框
+                        //显示视图界面
+                        Layout_Design.setVisibility(View.VISIBLE);
+                        //隐藏代码界面
+                        EditText_Code.setVisibility(View.INVISIBLE);
+                        //设置视图界面显示
                         show = true;
                     }else {
                         Snackbar.make(view, "代码错误", Snackbar.LENGTH_LONG)
                                 .setAction("确定", null).show();
                     }
                 }else {
+                    //隐藏视图界面
                     Layout_Design.setVisibility(View.INVISIBLE);
+                    //显示代码界面
                     EditText_Code.setVisibility(View.VISIBLE);
+                    //设置视图界面不显示
                     show = false;
                 }
             }
@@ -111,8 +116,11 @@ public class MainActivity extends AppCompatActivity {
      */
     public void init_Code(){
         String message = EditText_Code.getText().toString();
-        int guangbiao = EditText_Code.getSelectionStart();
+        //获取光标位置
+        int cursor = EditText_Code.getSelectionStart();
+        //设置非手动输入
         Text_Color = true;
+
         SpannableStringBuilder style=new SpannableStringBuilder(message);
         int int_1;
         int int_2;
@@ -175,6 +183,6 @@ public class MainActivity extends AppCompatActivity {
         }
         EditText_Code.setText(style);
         //置光标位置
-        EditText_Code.setSelection(guangbiao);
+        EditText_Code.setSelection(cursor);
     }
 }
