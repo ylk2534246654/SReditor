@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //视图界面
         Layout_Design = findViewById(R.id.Layout_Design);
+
         //代码编辑界面
         EditText_Code = findViewById(R.id.EditText_Code);
         //监听代码EditText输入变化
